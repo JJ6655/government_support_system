@@ -233,6 +233,12 @@ def inject_common_vars():
         'app_name': '정부지원사업 지역분류 시스템'
     }
 
+# Vercel용 핸들러
+def handler(request):
+    """Vercel 서버리스 함수 핸들러"""
+    return app
+
+# 로컬 개발용
 if __name__ == '__main__':
     # 개발 서버 실행
     debug_mode = os.getenv('FLASK_ENV') == 'development'
