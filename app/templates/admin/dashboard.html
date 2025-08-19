@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block title %}관리자 대시보드 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>관리자 대시보드</h2>
+    <div>
+        <button class="btn btn-success me-2" onclick="collectData()">
+            <i class="bi bi-download"></i> 데이터 수집
+        </button>
+        <a href="{{ url_for('admin_announcements') }}" class="btn btn-primary">
+            <i class="bi bi-list"></i> 공고 관리
+        </a>
+    </div>
+</div>
+
+<!-- 통계 카드들 -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h5 class="card-title mb-0">총 공고</h5>
+                        <h2 class="mb-0">{{ stats.total.total if stats.total else 0 }}</h2>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-file-text display-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h5 class="card-title mb-0">분류 완료</h5>
+                        <h2 class="mb-0">{{ stats.total.classified if stats.total else 0 }}</h2>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-check-circle display-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h5 class="card-title mb-0">미분류</h5>
+                        <h2 class="mb-0">{{ stats.total.unclassified if stats.total else 0 }}</h2>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-question-circle display-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h5 class="card-title mb-0">분류율</h5>
+                        <h2 class="mb-0">
+                            {% if stats.total and stats.total.total > 0 %}
+                                {{ "%.1f"|format((stats.total.classified / stats.total.total * 100)) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </h2>
+                    </div>
+                    <div class="ms-auto">
+                        <i class="bi bi-graph-up display-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 지역별 통계 -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">지역별 분류 현황</h5>
+            </div>
+            <div class="card-body">
+                {% if stats.by_region %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>지역</th>
+                                <th>공고 수</th>
+                                <th>비율</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total_count = stats.total.classified if stats.total and stats.total.classified else 1 %}
+                            {% for region in stats.by_region[:10] %}
+                            <tr>
+                                <td>{{ region.name }}</td>
+                                <td>{{ region.count }}</td>
+                                <td>
+                                    {% if region.count > 0 %}
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar" 
+                                             role="progressbar" 
+                                             style="width: {{ (region.count / total_count * 100)|round(1) }}%">
+                                            {{ "%.1f"|format(region.count / total_count * 100) }}%
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    0%
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">데이터가 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- 분류 방법별 통계 -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">분류 방법별 현황</h5>
+            </div>
+            <div class="card-body">
+                {% if stats.by_method %}
+                    {% for method in stats.by_method %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>
+                            {% if method.classification_method == 'keyword' %}
+                                <i class="bi bi-tags text-primary"></i> 키워드
+                            {% elif method.classification_method == 'ai' %}
+                                <i class="bi bi-cpu text-success"></i> AI
+                            {% elif method.classification_method == 'manual' %}
+                                <i class="bi bi-person text-warning"></i> 수동
+                            {% else %}
+                                <i class="bi bi-question"></i> 기타
+                            {% endif %}
+                        </span>
+                        <span class="badge bg-secondary">{{ method.count }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted">데이터가 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 데이터 수집 -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">데이터 관리</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="searchCount" class="form-label">수집할 데이터 수</label>
+                    <select class="form-select" id="searchCount">
+                        <option value="10">10개</option>
+                        <option value="20" selected>20개</option>
+                        <option value="50">50개</option>
+                        <option value="100">100개</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-success w-100" onclick="collectData()" id="collectBtn">
+                    <i class="bi bi-download"></i> 데이터 수집 실행
+                </button>
+                
+                <div id="collectStatus" class="mt-3" style="display: none;">
+                    <div id="progressCard" class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">수집 진행상황</h6>
+                            <div class="progress mb-2" style="height: 20px;">
+                                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%">
+                                    0%
+                                </div>
+                            </div>
+                            <div id="progressMessage" class="small text-muted">준비 중...</div>
+                            <div id="progressDetails" class="mt-2 small"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 최근 활동 로그 (향후 구현) -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">최근 활동</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">최근 활동 로그 기능은 추후 구현 예정입니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentJobId = null;
+let progressInterval = null;
+
+// 데이터 수집 함수
+function collectData() {
+    const searchCount = document.getElementById('searchCount').value;
+    const statusDiv = document.getElementById('collectStatus');
+    const collectBtn = document.getElementById('collectBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressMessage = document.getElementById('progressMessage');
+    const progressDetails = document.getElementById('progressDetails');
+    
+    // UI 초기화
+    statusDiv.style.display = 'block';
+    collectBtn.disabled = true;
+    collectBtn.innerHTML = '<div class="spinner-border spinner-border-sm me-2" role="status"></div>수집 중...';
+    
+    progressBar.style.width = '0%';
+    progressBar.textContent = '0%';
+    progressMessage.textContent = '데이터 수집 시작 중...';
+    progressDetails.innerHTML = '';
+    
+    // API 호출하여 수집 시작
+    fetch('/admin/collect', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            search_cnt: parseInt(searchCount)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            currentJobId = data.job_id;
+            progressMessage.textContent = data.message;
+            
+            // 진행상황 폴링 시작
+            startProgressPolling();
+            
+        } else {
+            showError(data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError(error.message);
+    });
+}
+
+// 진행상황 폴링 시작
+function startProgressPolling() {
+    if (!currentJobId) return;
+    
+    progressInterval = setInterval(() => {
+        checkProgress();
+    }, 1000); // 1초마다 확인
+    
+    // 즉시 한 번 실행
+    checkProgress();
+}
+
+// 진행상황 확인
+function checkProgress() {
+    if (!currentJobId) return;
+    
+    fetch(`/admin/collect/progress/${currentJobId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateProgressUI(data.progress);
+                
+                // 완료 또는 실패시 폴링 중지
+                if (data.progress.status === 'completed' || data.progress.status === 'failed') {
+                    clearInterval(progressInterval);
+                    handleCollectionComplete(data.progress);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Progress check error:', error);
+        });
+}
+
+// 진행상황 UI 업데이트
+function updateProgressUI(progress) {
+    const progressBar = document.getElementById('progressBar');
+    const progressMessage = document.getElementById('progressMessage');
+    const progressDetails = document.getElementById('progressDetails');
+    
+    // 진행률 업데이트
+    const percent = progress.progress_percent || 0;
+    progressBar.style.width = `${percent}%`;
+    progressBar.textContent = `${percent}%`;
+    
+    // 메시지 업데이트
+    progressMessage.textContent = progress.current_message || '진행 중...';
+    
+    // 상세 정보 업데이트
+    if (progress.steps && progress.steps.length > 0) {
+        const latestStep = progress.steps[progress.steps.length - 1];
+        let detailsHtml = `<strong>단계 ${latestStep.step}/4:</strong> ${latestStep.message}`;
+        
+        if (latestStep.details) {
+            const details = latestStep.details;
+            if (details.total_fetched) detailsHtml += `<br>• 수집: ${details.total_fetched}개`;
+            if (details.new_announcements) detailsHtml += `<br>• 신규: ${details.new_announcements}개`;
+            if (details.db_inserted) detailsHtml += `<br>• 저장: ${details.db_inserted}개`;
+        }
+        
+        progressDetails.innerHTML = detailsHtml;
+    }
+    
+    // 상태에 따른 진행바 색상 변경
+    progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated';
+    if (progress.status === 'failed') {
+        progressBar.className += ' bg-danger';
+    } else if (progress.status === 'completed') {
+        progressBar.className = 'progress-bar bg-success';
+    }
+}
+
+// 수집 완료 처리
+function handleCollectionComplete(progress) {
+    const collectBtn = document.getElementById('collectBtn');
+    const progressMessage = document.getElementById('progressMessage');
+    const progressDetails = document.getElementById('progressDetails');
+    
+    // 버튼 활성화
+    collectBtn.disabled = false;
+    collectBtn.innerHTML = '<i class="bi bi-download"></i> 데이터 수집 실행';
+    
+    if (progress.status === 'completed') {
+        const result = progress.result;
+        progressMessage.textContent = '수집 완료!';
+        
+        let completionDetails = '<div class="alert alert-success mt-2 mb-0 small">';
+        completionDetails += '<strong>수집 완료!</strong><br>';
+        if (result) {
+            completionDetails += `• 총 수집: ${result.total_fetched || 0}개<br>`;
+            completionDetails += `• 신규: ${result.new_announcements || 0}개<br>`;
+            completionDetails += `• 키워드 분류: ${result.keyword_classified || 0}개<br>`;
+            completionDetails += `• AI 분류: ${result.ai_classified || 0}개<br>`;
+            completionDetails += `• 분류 실패: ${result.classification_failed || 0}개`;
+        }
+        completionDetails += '</div>';
+        
+        progressDetails.innerHTML = completionDetails;
+        
+        // 5초 후 페이지 새로고침
+        setTimeout(() => {
+            window.location.reload();
+        }, 5000);
+        
+    } else if (progress.status === 'failed') {
+        progressMessage.textContent = '수집 실패';
+        progressDetails.innerHTML = `<div class="alert alert-danger mt-2 mb-0 small">
+            <strong>오류:</strong> ${progress.error}
+        </div>`;
+    }
+    
+    currentJobId = null;
+}
+
+// 오류 표시
+function showError(message) {
+    const collectBtn = document.getElementById('collectBtn');
+    const progressMessage = document.getElementById('progressMessage');
+    const progressDetails = document.getElementById('progressDetails');
+    
+    collectBtn.disabled = false;
+    collectBtn.innerHTML = '<i class="bi bi-download"></i> 데이터 수집 실행';
+    
+    progressMessage.textContent = '수집 실패';
+    progressDetails.innerHTML = `<div class="alert alert-danger mt-2 mb-0 small">
+        <strong>오류:</strong> ${message}
+    </div>`;
+    
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+    currentJobId = null;
+}
+
+// 페이지 언로드시 폴링 정리
+window.addEventListener('beforeunload', function() {
+    if (progressInterval) {
+        clearInterval(progressInterval);
+    }
+});
+</script>
+{% endblock %}

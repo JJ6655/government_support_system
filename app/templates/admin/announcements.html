@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}공고 관리 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>공고 관리</h2>
+    <div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> 대시보드
+        </a>
+    </div>
+</div>
+
+<!-- 필터 -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="region" class="form-label">지역 필터</label>
+                <select class="form-select" name="region" id="region">
+                    <option value="">전체</option>
+                    <option value="ALL" {{ 'selected' if region_filter == 'ALL' }}>전국</option>
+                    <option value="GYEONGNAM" {{ 'selected' if region_filter == 'GYEONGNAM' }}>경상남도</option>
+                    <option value="CHANGWON" {{ 'selected' if region_filter == 'CHANGWON' }}>창원시</option>
+                    <option value="SACHEON" {{ 'selected' if region_filter == 'SACHEON' }}>사천시</option>
+                    <!-- 기타 지역 옵션들... -->
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label for="status" class="form-label">분류 상태</label>
+                <select class="form-select" name="status" id="status">
+                    <option value="">전체</option>
+                    <option value="pending" {{ 'selected' if status_filter == 'pending' }}>미분류</option>
+                    <option value="classified" {{ 'selected' if status_filter == 'classified' }}>분류 완료</option>
+                    <option value="verified" {{ 'selected' if status_filter == 'verified' }}>검증 완료</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">필터 적용</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 공고 목록 -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">공고 목록 ({{ announcements|length }}개)</h5>
+    </div>
+    <div class="card-body p-0">
+        {% if announcements %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 40%">공고명</th>
+                        <th style="width: 15%">소관기관</th>
+                        <th style="width: 10%">현재 지역</th>
+                        <th style="width: 10%">분류 방법</th>
+                        <th style="width: 10%">신뢰도</th>
+                        <th style="width: 15%">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for announcement in announcements %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ announcement.pblancNm[:60] }}{% if announcement.pblancNm|length > 60 %}...{% endif %}</div>
+                            <small class="text-muted">
+                                ID: {{ announcement.pblancId }}<br>
+                                등록: {{ announcement.created_at.strftime('%Y-%m-%d') if announcement.created_at }}
+                            </small>
+                        </td>
+                        <td>
+                            <small>{{ announcement.jrsdInsttNm or '-' }}</small>
+                        </td>
+                        <td>
+                            {% if announcement.region_name %}
+                                <span class="badge bg-success">{{ announcement.region_name }}</span>
+                            {% else %}
+                                <span class="badge bg-warning">미분류</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if announcement.classification_method == 'keyword' %}
+                                <span class="badge bg-primary">키워드</span>
+                            {% elif announcement.classification_method == 'ai' %}
+                                <span class="badge bg-info">AI</span>
+                            {% elif announcement.classification_method == 'manual' %}
+                                <span class="badge bg-secondary">수동</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if announcement.classification_confidence %}
+                                {{ "%.2f"|format(announcement.classification_confidence) }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" 
+                                        onclick="showClassifyModal({{ announcement.id }}, '{{ announcement.pblancNm|e }}')"
+                                        title="분류 수정">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                {% if announcement.pblancUrl %}
+                                <a href="{{ announcement.pblancUrl }}" 
+                                   target="_blank" 
+                                   class="btn btn-outline-secondary"
+                                   title="공고 보기">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-4 text-center text-muted">
+            <i class="bi bi-inbox display-4"></i>
+            <p class="mt-2 mb-0">조건에 맞는 공고가 없습니다.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 분류 수정 모달 -->
+<div class="modal fade" id="classifyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">지역 분류 수정</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">공고명</label>
+                    <div id="modalAnnouncementName" class="form-control-plaintext small"></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="modalRegionSelect" class="form-label">지역 선택</label>
+                    <select class="form-select" id="modalRegionSelect">
+                        <option value="">미분류</option>
+                        <option value="ALL">전국</option>
+                        <optgroup label="경상남도">
+                            <option value="GYEONGNAM">경상남도 전체</option>
+                            <option value="CHANGWON">창원시</option>
+                            <option value="GIMHAE">김해시</option>
+                            <option value="JINJU">진주시</option>
+                            <option value="YANGSAN">양산시</option>
+                            <option value="GEOJE">거제시</option>
+                            <option value="TONGYEONG">통영시</option>
+                            <option value="SACHEON">사천시</option>
+                            <option value="MIRYANG">밀양시</option>
+                            <option value="HAMAN">함안군</option>
+                            <option value="CHANGNYEONG">창녕군</option>
+                            <option value="GOSEONG">고성군</option>
+                            <option value="NAMHAE">남해군</option>
+                            <option value="HADONG">하동군</option>
+                            <option value="SANCHEONG">산청군</option>
+                            <option value="HAMYANG">함양군</option>
+                            <option value="GEOCHANG">거창군</option>
+                            <option value="HAPCHEON">합천군</option>
+                            <option value="UIRYEONG">의령군</option>
+                        </optgroup>
+                        <!-- 기타 지역들... -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="saveClassification()">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentAnnouncementId = null;
+
+// 분류 모달 표시
+function showClassifyModal(announcementId, announcementName) {
+    currentAnnouncementId = announcementId;
+    document.getElementById('modalAnnouncementName').textContent = announcementName;
+    
+    const modal = new bootstrap.Modal(document.getElementById('classifyModal'));
+    modal.show();
+}
+
+// 분류 저장
+function saveClassification() {
+    if (!currentAnnouncementId) return;
+    
+    const regionCode = document.getElementById('modalRegionSelect').value;
+    
+    fetch('/admin/classify', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            announcement_id: currentAnnouncementId,
+            region_code: regionCode || null
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // 모달 닫기
+            const modal = bootstrap.Modal.getInstance(document.getElementById('classifyModal'));
+            modal.hide();
+            
+            // 페이지 새로고침
+            window.location.reload();
+        } else {
+            alert('분류 저장에 실패했습니다: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('오류가 발생했습니다: ' + error.message);
+    });
+}
+</script>
+{% endblock %}

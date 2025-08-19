@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+
+{% block title %}지원사업 검색 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 검색 필터 -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">검색 필터</h5>
+            </div>
+            <div class="card-body">
+                <form id="searchForm">
+                    <!-- 지역 선택 -->
+                    <div class="mb-3">
+                        <label class="form-label">지역 선택</label>
+                        
+                        <!-- 경상남도 -->
+                        <div class="form-check mt-2">
+                            <input class="form-check-input region-checkbox parent-region" type="checkbox" value="GYEONGNAM" id="regionGYEONGNAM" data-parent="true">
+                            <label class="form-check-label fw-bold" for="regionGYEONGNAM">
+                                경상남도
+                            </label>
+                        </div>
+                        
+                        <!-- 경남 지자체들 -->
+                        <div class="ms-3">
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="CHANGWON" id="regionCHANGWON" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionCHANGWON">창원시</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="GIMHAE" id="regionGIMHAE" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionGIMHAE">김해시</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="JINJU" id="regionJINJU" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionJINJU">진주시</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="YANGSAN" id="regionYANGSAN" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionYANGSAN">양산시</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="GEOJE" id="regionGEOJE" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionGEOJE">거제시</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="TONGYEONG" id="regionTONGYEONG" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionTONGYEONG">통영시</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="SACHEON" id="regionSACHEON" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionSACHEON">사천시</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="MIRYANG" id="regionMIRYANG" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionMIRYANG">밀양시</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="HAMAN" id="regionHAMAN" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionHAMAN">함안군</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="CHANGNYEONG" id="regionCHANGNYEONG" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionCHANGNYEONG">창녕군</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="GOSEONG" id="regionGOSEONG" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionGOSEONG">고성군</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="NAMHAE" id="regionNAMHAE" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionNAMHAE">남해군</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="HADONG" id="regionHADONG" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionHADONG">하동군</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="SANCHEONG" id="regionSANCHEONG" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionSANCHEONG">산청군</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="HAMYANG" id="regionHAMYANG" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionHAMYANG">함양군</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="GEOCHANG" id="regionGEOCHANG" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionGEOCHANG">거창군</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="HAPCHEON" id="regionHAPCHEON" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionHAPCHEON">합천군</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input region-checkbox gyeongnam-child" type="checkbox" value="UIRYEONG" id="regionUIRYEONG" data-parent="GYEONGNAM">
+                                <label class="form-check-label" for="regionUIRYEONG">의령군</label>
+                            </div>
+                        </div>
+                        
+                        <!-- 기타 지역들은 접을 수 있게 -->
+                        <div class="mt-2">
+                            <button class="btn btn-link p-0 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#otherRegions" aria-expanded="false">
+                                <i class="bi bi-chevron-right" id="otherRegionsIcon"></i> 기타 지역
+                            </button>
+                            <div class="collapse" id="otherRegions">
+                                <div class="ms-3 mt-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="SEOUL" id="regionSEOUL">
+                                        <label class="form-check-label" for="regionSEOUL">서울특별시</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="BUSAN" id="regionBUSAN">
+                                        <label class="form-check-label" for="regionBUSAN">부산광역시</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="DAEGU" id="regionDAEGU">
+                                        <label class="form-check-label" for="regionDAEGU">대구광역시</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="INCHEON" id="regionINCHEON">
+                                        <label class="form-check-label" for="regionINCHEON">인천광역시</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="GWANGJU" id="regionGWANGJU">
+                                        <label class="form-check-label" for="regionGWANGJU">광주광역시</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="DAEJEON" id="regionDAEJEON">
+                                        <label class="form-check-label" for="regionDAEJEON">대전광역시</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="ULSAN" id="regionULSAN">
+                                        <label class="form-check-label" for="regionULSAN">울산광역시</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="SEJONG" id="regionSEJONG">
+                                        <label class="form-check-label" for="regionSEJONG">세종특별자치시</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="GYEONGGI" id="regionGYEONGGI">
+                                        <label class="form-check-label" for="regionGYEONGGI">경기도</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="GANGWON" id="regionGANGWON">
+                                        <label class="form-check-label" for="regionGANGWON">강원특별자치도</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="CHUNGBUK" id="regionCHUNGBUK">
+                                        <label class="form-check-label" for="regionCHUNGBUK">충청북도</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="CHUNGNAM" id="regionCHUNGNAM">
+                                        <label class="form-check-label" for="regionCHUNGNAM">충청남도</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="JEONBUK" id="regionJEONBUK">
+                                        <label class="form-check-label" for="regionJEONBUK">전북특별자치도</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="JEONNAM" id="regionJEONNAM">
+                                        <label class="form-check-label" for="regionJEONNAM">전라남도</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="GYEONGBUK" id="regionGYEONGBUK">
+                                        <label class="form-check-label" for="regionGYEONGBUK">경상북도</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input region-checkbox" type="checkbox" value="JEJU" id="regionJEJU">
+                                        <label class="form-check-label" for="regionJEJU">제주특별자치도</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- 통계 정보 -->
+                <div class="mt-4">
+                    <h6>현재 통계</h6>
+                    <div id="statsInfo" class="small text-muted">
+                        <div>총 공고: <span id="totalCount">-</span>개</div>
+                        <div>분류 완료: <span id="classifiedCount">-</span>개</div>
+                        <div>미분류: <span id="unclassifiedCount">-</span>개</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 검색 결과 -->
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>지원사업 목록</h4>
+            <div id="resultCount" class="text-muted small"></div>
+        </div>
+        
+        <!-- 분야별 탭 메뉴 -->
+        <ul class="nav nav-tabs mb-3" id="categoryTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-pane" type="button" role="tab" data-category="">전체</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tech-tab" data-bs-toggle="tab" data-bs-target="#tech-pane" type="button" role="tab" data-category="기술">기술</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="mgmt-tab" data-bs-toggle="tab" data-bs-target="#mgmt-pane" type="button" role="tab" data-category="경영">경영</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="hr-tab" data-bs-toggle="tab" data-bs-target="#hr-pane" type="button" role="tab" data-category="인력">인력</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="export-tab" data-bs-toggle="tab" data-bs-target="#export-pane" type="button" role="tab" data-category="수출">수출</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="finance-tab" data-bs-toggle="tab" data-bs-target="#finance-pane" type="button" role="tab" data-category="자금">자금</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="startup-tab" data-bs-toggle="tab" data-bs-target="#startup-pane" type="button" role="tab" data-category="창업">창업</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other-pane" type="button" role="tab" data-category="기타">기타</button>
+            </li>
+        </ul>
+
+        <!-- 로딩 상태 -->
+        <div id="loadingSpinner" class="text-center py-5" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2">데이터를 불러오는 중...</div>
+        </div>
+
+        <!-- 검색 결과 컨테이너 -->
+        <div id="announcementsList">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                지역을 선택하고 검색 버튼을 클릭하여 지원사업을 조회하세요.
+            </div>
+        </div>
+
+        <!-- 페이지네이션 (향후 구현) -->
+        <nav aria-label="Page navigation" id="pagination" style="display: none;">
+            <ul class="pagination justify-content-center">
+                <!-- 페이지네이션 항목들 -->
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// 전역 변수
+let currentData = [];
+let currentCategory = '';
+
+// 페이지 로드시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    initializeRegionCheckboxes();
+    initializeCategoryTabs();
+    initializeOtherRegionsToggle();
+    loadInitialData();
+});
+
+// 지역 체크박스 초기화
+function initializeRegionCheckboxes() {
+    const checkboxes = document.querySelectorAll('.region-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            handleRegionChange(this);
+        });
+    });
+}
+
+// 지역 선택 변경 처리
+function handleRegionChange(checkbox) {
+    const value = checkbox.value;
+    const isChecked = checkbox.checked;
+    
+    if (value === 'GYEONGNAM') {
+        // 경남 선택시 경남 하위 지역들도 같이 선택/해제
+        const gyeongnamChildren = document.querySelectorAll('.gyeongnam-child');
+        gyeongnamChildren.forEach(child => {
+            child.checked = isChecked;
+        });
+    } else if (checkbox.classList.contains('gyeongnam-child')) {
+        // 경남 하위 지역 선택시
+        if (isChecked) {
+            // 경남도 함께 선택
+            document.getElementById('regionGYEONGNAM').checked = true;
+        } else {
+            // 모든 경남 하위 지역이 체크 해제되면 경남도 해제
+            const checkedGyeongnamChildren = document.querySelectorAll('.gyeongnam-child:checked');
+            if (checkedGyeongnamChildren.length === 0) {
+                document.getElementById('regionGYEONGNAM').checked = false;
+            }
+        }
+    }
+    
+    // 지역 변경시마다 동적으로 검색
+    debounceSearch();
+}
+
+// 동적 검색을 위한 디바운스 타이머
+let searchTimeout;
+
+// 디바운스된 검색 실행
+function debounceSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        const selectedRegions = getSelectedRegions();
+        loadAnnouncements(selectedRegions);
+    }, 500); // 500ms 지연
+}
+
+// 분야별 탭 초기화
+function initializeCategoryTabs() {
+    const tabs = document.querySelectorAll('#categoryTabs button');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            currentCategory = this.dataset.category || '';
+            filterAnnouncementsByCategory();
+        });
+    });
+}
+
+// 기타 지역 접기/펼치기 초기화
+function initializeOtherRegionsToggle() {
+    const collapseElement = document.getElementById('otherRegions');
+    const icon = document.getElementById('otherRegionsIcon');
+    
+    collapseElement.addEventListener('shown.bs.collapse', function() {
+        icon.className = 'bi bi-chevron-down';
+    });
+    
+    collapseElement.addEventListener('hidden.bs.collapse', function() {
+        icon.className = 'bi bi-chevron-right';
+    });
+}
+
+// 선택된 지역들 가져오기
+function getSelectedRegions() {
+    const checkedBoxes = document.querySelectorAll('.region-checkbox:checked');
+    let regions = Array.from(checkedBoxes).map(cb => cb.value);
+    
+    // 지역이 선택되어 있으면 ALL도 포함
+    if (regions.length > 0) {
+        regions.push('ALL');
+    }
+    
+    return regions;
+}
+
+// 초기 데이터 로드
+function loadInitialData() {
+    // 전체 지역으로 기본 로드
+    loadAnnouncements([]);
+    updateStatsInfo();
+}
+
+// 공고 데이터 로드
+function loadAnnouncements(regions) {
+    const spinner = document.getElementById('loadingSpinner');
+    const listContainer = document.getElementById('announcementsList');
+    const resultCount = document.getElementById('resultCount');
+    
+    // 로딩 상태 표시
+    spinner.style.display = 'block';
+    listContainer.innerHTML = '';
+    resultCount.textContent = '';
+    
+    // API 호출 - 여러 지역 지원
+    const params = new URLSearchParams();
+    if (regions && regions.length > 0) {
+        regions.forEach(region => {
+            params.append('regions', region);
+        });
+    }
+    params.append('limit', '50');
+    
+    fetch(`/api/announcements?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            spinner.style.display = 'none';
+            
+            if (data.success) {
+                currentData = data.data;
+                filterAnnouncementsByCategory();
+                updateResultCount();
+            } else {
+                showError('데이터를 불러오는데 실패했습니다: ' + data.error);
+            }
+        })
+        .catch(error => {
+            spinner.style.display = 'none';
+            console.error('Error:', error);
+            showError('데이터를 불러오는데 실패했습니다.');
+        });
+}
+
+// 분야별 필터링
+function filterAnnouncementsByCategory() {
+    if (!currentData) return;
+    
+    let filteredData = currentData;
+    
+    if (currentCategory) {
+        filteredData = currentData.filter(announcement => {
+            const category = announcement.pldirSportRealmLclasCodeNm || '';
+            return category.includes(currentCategory);
+        });
+    }
+    
+    displayAnnouncements(filteredData);
+    updateResultCount();
+}
+
+// 결과 수 업데이트
+function updateResultCount() {
+    const resultCount = document.getElementById('resultCount');
+    const filteredCount = document.querySelectorAll('#announcementsList .card').length;
+    resultCount.textContent = `${filteredCount}개 결과`;
+}
+
+// 공고 목록 표시
+function displayAnnouncements(announcements) {
+    const container = document.getElementById('announcementsList');
+    
+    if (!announcements || announcements.length === 0) {
+        container.innerHTML = `
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                검색 조건에 맞는 지원사업이 없습니다.
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    announcements.forEach(announcement => {
+        const regionName = announcement.region_name || '미분류';
+        const createdDate = new Date(announcement.created_at).toLocaleDateString('ko-KR');
+        
+        html += `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="card-title">
+                                <a href="${announcement.pblancUrl || '#'}" target="_blank" class="text-decoration-none">
+                                    ${announcement.pblancNm}
+                                </a>
+                            </h5>
+                            <p class="card-text text-muted small mb-2">
+                                ${truncateText(announcement.bsnsSumryCn || '', 150)}
+                            </p>
+                            <div class="row small text-muted">
+                                <div class="col-sm-6">
+                                    <strong>소관기관:</strong> ${announcement.jrsdInsttNm || '-'}
+                                </div>
+                                <div class="col-sm-6">
+                                    <strong>수행기관:</strong> ${announcement.excInsttNm || '-'}
+                                </div>
+                                <div class="col-sm-6 mt-1">
+                                    <strong>신청기간:</strong> ${announcement.reqstBeginEndDe || '-'}
+                                </div>
+                                <div class="col-sm-6 mt-1">
+                                    <strong>등록일:</strong> ${createdDate}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <span class="badge bg-primary mb-2">${regionName}</span>
+                            <br>
+                            ${announcement.pldirSportRealmLclasCodeNm ? 
+                                `<span class="badge bg-secondary">${announcement.pldirSportRealmLclasCodeNm}</span><br>` : ''}
+                            <div class="mt-2">
+                                ${announcement.pblancUrl ? 
+                                    `<a href="${announcement.pblancUrl}" target="_blank" class="btn btn-outline-primary btn-sm">공고 보기</a>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// 텍스트 자르기
+function truncateText(text, maxLength) {
+    if (!text) return '';
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+}
+
+// 에러 메시지 표시
+function showError(message) {
+    const container = document.getElementById('announcementsList');
+    container.innerHTML = `
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i>
+            ${message}
+        </div>
+    `;
+}
+
+// 통계 정보 업데이트
+function updateStatsInfo() {
+    fetch('/api/stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.total) {
+                const total = data.data.total;
+                document.getElementById('totalCount').textContent = total.total || 0;
+                document.getElementById('classifiedCount').textContent = total.classified || 0;
+                document.getElementById('unclassifiedCount').textContent = total.unclassified || 0;
+            }
+        })
+        .catch(error => {
+            console.error('통계 조회 오류:', error);
+        });
+}
+</script>
+{% endblock %}
